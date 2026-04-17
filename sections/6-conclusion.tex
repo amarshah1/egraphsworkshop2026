@@ -3,13 +3,13 @@
 
 We have presented an initial implementation of relational e-matching inside an
 SMT solver, identifying \emph{backtracking} as the central obstacle. Our
-synthetic benchmarks demonstrate that, even with a simple left-deep binary
-join, the relational approach can substantially outperform the conventional
-top-down matcher. Our results on Verus benchmarks suggest that it is not that 
-simple to translate this asymptotic advantage into a practical win on real workloads.
-Closing the remaining gap will require a combination of better data
-structures, better query planning, and a tighter integration with the rest of
-the solver. We sketch the most promising directions below.
+synthetic benchmarks demonstrate that the relational approach can substantially
+outperform the conventional top-down matcher. Our results on Verus benchmarks
+suggest that it is not that simple to translate this asymptotic advantage into a
+practical win on real workloads. Closing the remaining gap will require a
+combination of better data structures, better query planning, and a tighter
+integration with the rest of the solver. We sketch the most promising directions
+below.
 
 \paragraph{Better backtrackable index maps.}
 Our current implementation maintains
@@ -20,7 +20,7 @@ relational indices would directly translate into reduced per-decision overhead.
 
 \paragraph{Understanding what real benchmarks need.}
 Synthetic benchmarks let us showcase the asymptotic advantage of relational
-e-matching, but Verus benchmarks paint a more nuanced picture. We do not yet
+e-matching. We do not yet
 have a precise characterization of which patterns and which workloads benefit,
 and which do not. A more careful study --- profiling pattern shapes, e-graph sizes,
 and the distribution of trigger applications across decision levels --- is needed.
@@ -47,8 +47,8 @@ that have produced useful instantiations in the past, or biasing the join
 order toward terms involved in recent conflicts, similarly fit as cost-model
 inputs to the planner.
 
-\paragraph{Outlook.}
-Indexing techniques have repeatedly proven decisive in SMT
+% \paragraph{Outlook.}
+Indexing techniques have proven helpful in SMT
 performance: code trees and inverted path indices~\cite{ematchingz3} are widely
 credited with making large-scale e-matching tractable in Z3. Relational
 e-matching is, in a precise sense, the most general indexing technique

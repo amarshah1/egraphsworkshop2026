@@ -6,7 +6,7 @@ solver currently in development~\cite{sundance}. The implementation spans three
 components: (1)~two index data structures that map e-class roots to the e-nodes
 that reference them, (2)~a pattern-flattening compiler that reduces a nested
 trigger to a conjunctive query over these indices, and (3)~a left-deep join
-executor with greedy query planning, semi-naive evaluation, and deduplication.
+executor with greedy query planning, and semi-naive evaluation.
 
 \subsection{Index data structures}
 \label{sec:indices}
@@ -57,7 +57,7 @@ discuss alternative implementations in Section~\ref{sec:conclusion}.
 \subsection{Pattern flattening}
 \label{sec:flattening}
 
-A trigger pattern such as \smt{g(h(x), x)} is a nested term. Our relational
+A trigger pattern such as \smt{(g (h x) x)} is a nested term. Our relational
 matcher requires it to be flattened into a conjunction of relational atoms, such 
 as $h(x) = v_0  \wedge  g(v_0,\; x) = root$
 

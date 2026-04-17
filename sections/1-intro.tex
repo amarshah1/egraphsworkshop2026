@@ -10,26 +10,26 @@ matching sub-patterns.
 However, recent work has proposed a new technique called relational
 e-matching~\cite{relationalematching}, where database query execution techniques
 are used to match syntactic patterns in an egraph. Relational e-matching has
-been highly effective in state-of-the-arte quality saturation engines such as
+been highly effective in state-of-the-art equality saturation engines such as
 egglog~\cite{egglog}, but until now it has not been implemented in an SMT solver.
 This is because existing relational e-matching implementations cannot be used
 out of the box in an SMT solver: they must support \emph{backtracking}.
 
 In this work, we present our initial implementation of a backtrackable,
-relational e-matcher in Sundance~\cite{sundance}, an SMT solver currently in
-development. We describe maintaining backtrackable indices using a functinoal 
-datastructure and implemenet an e-matching algorithm based on a
+relational e-matching algorithm in Sundance~\cite{sundance}, an SMT solver currently in
+development. We describe maintaining backtrackable indices using a persistent 
+datastructure and implement an e-matching algorithm based on a
 left-deep binary join.
 
 We evaluate our implementation on a set of synthetic benchmarks designed to test
 e-matching and show a $25 \times$ median speedup over a single top-down
-e-matching algorithm. However, the story is less rosy on real workloads. 
-On a set of benchmarks from the program verifier Verus, the relational e-matching
-algorithm provides a median slowdown of $1.77 \times$. 
+e-matching algorithm. However, the story is less rosy on real workloads. On a
+set of benchmarks from the program verifier Verus~\cite{verus}, the relational
+e-matching algorithm provides a median slowdown of $1.77 \times$. 
 
-There is promise in the relational approach, but work to be done to close the
-gap on real workloads. We conclude with a discussion of future work to close
-this gap including better backtrackable index maps, a better understanding of
-what real benchmarks need, multi-query optimization, and heuristics inside the
-query planner. We believe that relational e-matching can be a practical component of an
-SMT solver.
+There is promise in the relational approach, but it requires more work to close
+the gap on real workloads. We conclude with a discussion of future work
+including better backtrackable index maps, a better understanding of real
+benchmarks, multi-query optimization, and heuristics inside the query
+planner. We believe that relational e-matching can be a practical component of
+an SMT solver.

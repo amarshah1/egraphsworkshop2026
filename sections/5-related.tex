@@ -20,22 +20,19 @@ finding all matches of a pattern modulo an e-graph --- but compares Simplify's
 recursive top-down matcher with a relational e-matching algorithm.
 
 \paragraph{Indexing for SMT e-matching.}
-de Moura and Bj{\o}rner introduced the \emph{e-matching code tree}, a
-compiled abstract matching machine that shares prefix work across many
-patterns simultaneously, and the \emph{inverted path index}, which makes
-e-matching incremental as the e-graph grows~\cite{ematchingz3}. A companion
-paper~\cite{ematchingfunprofit} surveys the practical lessons from deploying
-these techniques in Z3 and motivates index-based matching as the workhorse of
-modern SMT quantifier instantiation. Code trees are the closest prior work to
-our approach in spirit: both compile patterns to a more efficient
-representation than naive top-down traversal. The key difference is that code
-trees still drive matching from the pattern root, whereas relational
-e-matching is free to start from whichever relation is smallest.
+de Moura and Bj{\o}rner introduced the \emph{e-matching code tree}, a compiled
+abstract matching machine that shares prefix work across many patterns
+simultaneously, and the \emph{inverted path index}, which makes e-matching
+incremental as the e-graph grows~\cite{ematchingz3}. Code trees are similar to
+our approach in spirit: both compile patterns to a more efficient representation
+than naive top-down traversal. The key difference is that code trees still drive
+matching from the pattern root, whereas relational e-matching is free to start
+from whichever relation is smallest.
 
 \paragraph{Equality saturation.}
-Equality saturation, introduced by Tate et al.~\cite{eqsat}, repurposes the
+Equality saturation, introduced by Tate et al.~\cite{eqsat}, uses the
 e-graph as a compiler intermediate representation: rewrite rules are applied to
-saturation and an optimal program is then extracted, sidestepping the
+saturation and an optimal program is extracted, sidestepping the
 phase-ordering problem in traditional optimizers. The egg library~\cite{egg}
 made this approach widely practical by introducing deferred rebuilding of
 congruence invariants and e-class analyses. Relational

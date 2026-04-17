@@ -1,7 +1,7 @@
 \section{Evaluation}
 \label{sec:eval}
 
-We evaluate our relational e-matching implementation in Sundance against
+We evaluate our relational e-matching implementation against
 Sundance's existing top-down e-matcher on two benchmark suites: a set of
 synthetic queries designed to stress the patterns where relational e-matching
 is asymptotically advantageous, and a set of real queries from the
@@ -42,7 +42,7 @@ Section~\ref{sec:conclusion}.
 
 The synthetic suite is a parameterized generalization of the running example
 from Section~\ref{sec:background}. Each query uses a nested trigger similar to
-\smt{g(h(x), x)}, but could also vary in the number 
+\smt{(g (h x) x)}, but could also vary in the number 
 
 We populate the e-graph with a varying number of
 \emph{decoy} entries: extra ground assertions of the form \smt{(g d_i d_i)}
@@ -72,5 +72,5 @@ $908$ queries.
 
 These results suggest that more work is needed to realize the asymptotic
 advantage of relational e-matching does not translate directly into a practical
-win on real workloads. Closing this gap is the central engineering challenge
+win on real. Closing this gap is the central engineering challenge
 identified in Section~\ref{sec:conclusion}.

@@ -17,7 +17,7 @@ SMT-LIB~\cite{smtlibstandard} query in Figure~\ref{fig:running-example}. The
 query declares two functions over an uninterpreted sort \smt{U}: \smt{g}
 (binary, line~2) and \smt{h} (unary, line~3). It asserts a top-level disjunction
 (line~8); three ground facts (lines~9--11); and a single universally quantified
-clause (lines~12--13) with the nested trigger \smt{g(h(x), x)}. The query is
+clause (lines~12--13) with the nested trigger \smt{(g (h x) x)}. The query is
 unsatisfiable, and a typical SMT solver discharges it as follows.
 
 The SAT engine first decides the disjunction by case-splitting on its two
@@ -28,7 +28,7 @@ disjuncts.
 existing \smt{g}-applications: the term \smt{(g (h a) b)} becomes congruent to
 \smt{(g (h a) a)}, so the e-graph now contains an application of \smt{g} whose
 first argument is \smt{(h a)} and whose second argument is in the e-class of
-\smt{a}. The trigger \smt{g(h(x), x)} therefore matches with \smt{x = a}, and
+\smt{a}. The trigger \smt{(g (h x) x)} therefore matches with \smt{x = a}, and
 the quantifier instantiates to \smt{(not (g (h a) a))}. This new lemma
 contradicts the term \smt{(g (h a) a)} that congruence closure just derived in
 the e-graph, producing a theory conflict.  Notice that we have reached a 
@@ -38,7 +38,7 @@ and backtracks to before the \smt{a = b} decision.
 
 \paragraph{Branch \smt{a = c}.} This branch is similar. Merging the e-classes
 of \smt{a} and \smt{c} makes \smt{(g (h a) c)} congruent to \smt{(g (h a) a)}.
-The same trigger \smt{g(h(x), x)} matches with \smt{x = a}, the quantifier
+The same trigger \smt{(g (h x) x)} matches with \smt{x = a}, the quantifier
 instantiates to \smt{(not (g (h a) a))}, and we again obtain a theory conflict.
 
 With both disjuncts refuted, the SAT engine has no remaining assignments to the
@@ -75,7 +75,7 @@ relational e-matching can start  from the small \smt{h}-table and index-joins in
 There are two key features that are important to highlight here. First, the disjunction
 forces the SAT engine to explore two case splits. After choosing one disjunct,
 instantiating quantifiers, and propagating consequences, the solver may discover
-a conflict and \emph{backtrack} to try the other disjunct. Thus, here all of the
+a conflict and \emph{backtrack} to try the other disjunct. Thus, all of the
 solvers datastructures must be rolled back to the state they were in before the first
 disjunct.
 
@@ -95,7 +95,7 @@ below take very different approaches to finding such matches.
 
 Top-down e-matching~\cite{simplify}, the classical algorithm used in most SMT
 solvers, walks the pattern from the top and recursively matches against the
-e-graph. For our trigger \smt{g(h(x), x)}, the algorithm enumerates every e-node
+e-graph. For our trigger \smt{(g (h x) x)}, the algorithm enumerates every e-node
 of the form \smt{(g t1 t2)} and checks whether
 the e-class of \smt{t1} contains an \smt{h}-application \smt{(h s)}, and whether
 the e-class of \smt{s} equals the e-class of \smt{t2}. In our running example
@@ -111,7 +111,7 @@ of how small $k$ is.
 
 Relational e-matching~\cite{relationalematching} treats each function symbol's
 e-node table as a database relation and compiles the trigger into a multi-way
-join. For \smt{g(h(x), x)}, the trigger is encoded as the conjunctive query
+join. For \smt{(g (h x) x)}, the trigger is encoded as the conjunctive query
 %
 \[
   h(x) = v_0 \;\;\wedge\;\; g(v_0,\; x) = root
