@@ -1,0 +1,189 @@
+\section{Approach}
+\label{sec:approach}
+
+We now describe our implementation of relational e-matching in Sundance, an SMT
+solver currently in development~\cite{sundance}. The implementation spans three
+components: (1)~two index data structures that map e-class roots to the e-nodes
+that reference them, (2)~a pattern-flattening compiler that reduces a nested
+trigger to a conjunctive query over these indices, and (3)~a left-deep join
+executor with greedy query planning, semi-naive evaluation, and deduplication.
+
+\subsection{Index data structures}
+\label{sec:indices}
+
+The core idea of relational e-matching is to precompute indices so that, given a
+bound variable's e-class, one can directly look up which e-nodes reference that
+e-class---without scanning every e-node of a given function symbol.
+
+Sundance maintains two such indices, keyed by function symbol.
+
+\paragraph{Output index.} For each function symbol $f$, the \emph{output index}
+maps an e-class root $c$ to the set of $f$-e-nodes whose output (i.e., the
+e-class of the term $f(\ldots)$ itself) is~$c$. In code, \texttt{function\_maps}
+is itself keyed by function symbol, with type
+%
+\[
+  \text{FnSymbol} \;\to\; (\text{e-class} \to \{\text{e-node uid}\}).
+\]
+
+\paragraph{Argument index.} For each function symbol $f$ and each argument
+position $i$, the \emph{argument index} maps an e-class root $c$ to the set of
+$f$-e-nodes whose $i$-th argument is in e-class~$c$. In code,
+\texttt{function\_indices} has type
+%
+\[
+  \text{FnSymbol} \;\to\; (\text{ArgPos} \to (\text{e-class} \to \{\text{e-node uid}\}))
+\]
+
+Both indices are implemented as \texttt{im::OrdMap} (a persistent balanced tree
+from the \texttt{im} crate~\cite{im-rs}). When two e-classes are merged, entries from the old root are moved
+to the new root in both indices. Each entry carries a timestamp (the
+\emph{matching round} at which it was inserted) to support the semi-naive
+evaluation discussed in Section~\ref{sec:seminaive}.
+
+\paragraph{Backtracking.} At each SAT decision level, Sundance saves a snapshot
+of the two indices. Because \texttt{im::OrdMap} is a persistent data structure,
+cloning is $O(1)$ --- it shares structure with the live copy. On backtrack, the
+solver restores the snapshot, discarding all index mutations that occurred under
+the popped decision level. New terms created by quantifier instantiations are
+then re-inserted into the restored indices, since those terms are
+permanent in the egraph even though the equalities that triggered them may have
+been undone.
+
+The cheap snapshots come at a cost: \texttt{im::OrdMap} is a persistent balanced
+tree and every insert, lookup, or removal pays the usual $O(\log n)$ tree walk. We 
+discuss alternative implementations in Section~\ref{sec:conclusion}.
+
+\subsection{Pattern flattening}
+\label{sec:flattening}
+
+A trigger pattern such as \smt{g(h(x), x)} is a nested term. Our relational
+matcher requires it to be flattened into a conjunction of relational atoms, such 
+as $h(x) = v_0  \wedge  g(v_0,\; x) = root$
+
+The resulting atom list is a conjunctive query: a match must simultaneously
+satisfy all atoms. Each quantifier-bound variable (e.g., \smt{x}) may appear in
+multiple atoms, acting as a join variable. Ground sub-terms (constants) are
+recorded as fixed bindings and used to constrain index lookups.
+
+\subsection{Join execution}
+\label{sec:join}
+
+Given the flattened atom list, the join executor produces all variable
+assignments that satisfy every atom simultaneously. We use a left-deep binary
+join: atoms are processed one at a time in a fixed order, and at each step the
+current set of partial bindings (the \emph{frontier}) is extended by joining
+against the next atom.
+
+\subsubsection{Query planning}
+
+A good atom ordering avoids Cartesian products by ensuring that each new atom
+shares at least one variable with the frontier. Sundance uses a greedy heuristic:
+\begin{enumerate}
+\item Pick the atom whose function has the fewest e-nodes (smallest table).
+\item For each subsequent position, pick the remaining atom that shares the most
+      variables with the already-bound set. Break ties by smallest table size.
+\end{enumerate}
+If any atom's function has zero e-nodes, the join is guaranteed empty and we
+short-circuit immediately.
+
+\subsubsection{Candidate retrieval}
+
+At each join step, for each partial binding in the frontier, we must find all
+e-nodes of the current atom's function that are consistent with the bound
+variables. This is where the index data structures pay off.
+
+For each argument position $i$ of the atom whose variable is already bound to
+some e-class~$c$, we query \linebreak $\text{function\_indices}[f].\text{args}[i][c]$
+to retrieve candidate e-node uids. If the output variable is bound, we similarly
+query the output index. When multiple variables are bound, we intersect the
+candidate sets.
+%  (via a sorted-merge intersection).
+If no variables are bound (as
+with the first atom in the join order), we fall back to a full scan of the
+function's e-node table.
+
+% Crucially, the index lookups are hoisted out of the per-binding loop: for a
+% given join step, the function-name lookups into \texttt{function\_maps} and
+% \texttt{function\_indices} are performed once and reused across all frontier
+% bindings.
+
+% \subsubsection{Binding extension and consistency}
+
+% For each candidate e-node, we attempt to extend the current partial binding. For
+% each variable position (argument or output), if the variable is already bound, we
+% check that the candidate's e-class at that position equals the bound value
+% (using the union-find's \texttt{find} operation). If the variable is unbound, we
+% bind it to the candidate's raw term uid and record the canonical e-class root
+% alongside it.
+
+% Storing the raw uid (rather than the canonical root) is important for
+% correctness: the downstream quantifier instantiation substitutes these terms
+% into the quantifier body, and using the raw fnode argument preserves the
+% invariant that two matches against the same fnode produce identical
+% substitutions. This prevents the solver from re-instantiating semantically
+% equivalent quantifier bodies with different class representatives across rounds.
+
+% \subsubsection{Deduplication}
+% \label{sec:dedup}
+
+% Multiple e-nodes in the same e-class can produce bindings that differ in raw
+% uids but agree on canonical roots.  Without deduplication, these redundant
+% bindings cause a Cartesian blowup: if a function has $m$ e-nodes all in the
+% same e-class, the next join step sees $m$ ``copies'' of what is semantically one
+% binding, multiplying the frontier by $m$ at every step.
+
+% To avoid this, after each join step Sundance sorts the new bindings by their
+% canonical-root vectors and removes duplicates. Because we store the canonical
+% root alongside the raw uid at bind time, this deduplication requires no
+% additional \texttt{find} calls---it is a simple vector comparison and dedup.
+
+\subsection{Semi-naive evaluation}
+\label{sec:seminaive}
+
+Each matching round assigns a timestamp to newly inserted index entries. Between
+rounds, the \emph{matching round counter} is incremented. Semi-naive evaluation
+ensures that each round only discovers \emph{new} matches by requiring at least
+one atom in the join to use only ``delta'' entries (those with timestamp
+$\geq$ the current matching round). For a flattened pattern with $k$ atoms, we
+execute $k$ passes: in pass $i$, atom $i$ is restricted to delta entries while
+all other atoms use the full index. The union of results across all passes yields
+exactly the new matches. If no atom has any delta entries, the entire
+multipattern is skipped.
+
+% \subsection{Discussion: room for improvement}
+% \label{sec:room}
+
+% Our current implementation is a first step; several optimizations remain.
+
+% \paragraph{Pattern flattening does not share subterms.}
+% If the same sub-expression appears twice in a trigger (e.g.,
+% \smt{f(g(x), g(x))}), the flattener creates two independent fresh variables for
+% the two occurrences of \smt{g(x)} rather than reusing one. This can introduce
+% redundant atoms and inflate the join.
+
+% \paragraph{String-keyed lookups in the hot path.}
+% Function symbols are currently stored as heap-allocated strings. Every index
+% lookup hashes the function name; interning symbols to integer IDs would replace
+% these with array lookups.
+
+% \paragraph{Per-quantifier setup cost.}
+% For each quantifier in each matching round, we rebuild the variable-index map
+% and recompute the join order. Pre-computing these at pattern-registration time
+% and caching them on the quantifier would eliminate this per-round overhead.
+
+% \paragraph{Post-match pipeline dominance.}
+% Our profiling shows that the matching phase itself (index lookups and joins) is
+% often a small fraction of the total per-round cost. The bulk of the time is
+% spent in the post-match pipeline: substituting the matched bindings into the
+% quantifier body, converting to NNF, inserting the resulting terms into the
+% egraph (\texttt{insert\_predecessor}), and converting to CNF. These costs are
+% shared between relational and top-down e-matching and are orthogonal to the
+% matching algorithm, but they currently dominate wall-clock time on realistic
+% benchmarks.
+
+% \paragraph{Worst-case optimal joins.}
+% Our current join executor uses a left-deep binary join, which is not worst-case
+% optimal for cyclic queries. Adopting a worst-case optimal join algorithm (e.g.,
+% generic join~\cite{genericjoin}) could improve performance on patterns where the
+% optimal plan is not left-deep.

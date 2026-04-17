@@ -1,0 +1,68 @@
+% dafny.sty
+% Dafny mode for the LaTeX listings package.
+% Rustan Leino, 22 June 2008.
+
+\usepackage{listings}
+
+% \newcommand{\theExample}{\hyperref[example:bank:alts]{Example\phantom{a}\ref*{example:bank:alts}}}
+% \newcommand{\otherExample}{\hyperref[example:bank:tokens]{Example\phantom{a}\ref*{example:bank:tokens}}}
+
+% \newcommand{\secrw}{\hyperref[sec:rw:motive]{Section\phantom{a}\ref*{sec:rw:motive}}}
+
+% \newcommand{\colorghost}[1]{{\color{gray}#1}}
+
+\lstdefinelanguage{smtlib}{
+  morekeywords={
+    assert,
+    Int,
+    Bool,
+    :pattern,
+      },
+  % types, including special seagull types
+  ndkeywords={RwLock,Lock,ExclGuard,SharedGuard,Token,token,Atomic,Cell,R,C,Id,seq,Transfer,int,Permission,Pointer,bool,Entry},
+  literate=%
+    {space}{$\phantom{a}$}1
+    %{TheExample}{\hyperref{example:bank:alts}[Example\phantom{a}\ref*{example:bank:alts}]}1
+    %{GHA}{\colorghost{ghost linear tokenA}}1
+    %{GHB}{\colorghost{ghost linear tokenB}}1
+    %{GHC}{\colorghost{ghost linear tokenA', tokenB', responseToken : =}}1
+    %{GHD}{\colorghost{transform tokenA, tokenB, requestToken;}}1
+    {arrow}{$\to$}1
+    {declareconst}{{\color{blue}declare-const}}1
+    {declarefun}{{\color{blue}declare-fun}}1
+    {definefun}{{\color{blue}define-fun}}1
+    {checksat}{{\color{blue}check-sat}}1
+    ,
+  sensitive=true,  % case sensitive
+  morecomment=[l]{;},
+  morecomment=[s]{/*}{*/},
+  morecomment=[s]{\{:}{\}},
+  morestring=[b]",
+  numbers=none,
+  firstnumber=0,
+  numberstyle=\tiny,
+  stepnumber=5,
+  basicstyle=\scriptsize\sffamily,
+  commentstyle=\itshape,
+  keywordstyle=\color{blue},
+  ndkeywordstyle=\color{blue},
+}
+\lstnewenvironment{smtlib}[1][]{%
+  \lstset{language=smtlib,
+    floatplacement={tbp},captionpos=b,
+    frame=lines,xleftmargin=20pt,xrightmargin=8pt,basicstyle=\ttfamily,
+    numbers=left,numberstyle=\tiny,stepnumber=1,firstnumber=1,numbersep=6pt,#1}}{}
+
+% Inline SMT-LIB code: \smt{(g (h a) a)} renders with the same keyword
+% highlighting as the smtlib listing environment.
+\newcommand{\smt}[1]{\lstinline[language=smtlib,basicstyle=\ttfamily]!#1!}
+% \lstnewenvironment{dafnyNoLines}[1][]{%
+%   \lstset{language=smtlib,
+%     floatplacement={tbp},captionpos=b,
+%     xleftmargin=8pt,xrightmargin=8pt,basicstyle=\ttfamily,#1}}{}
+% \def\inlinedafny{%
+%     \lstinline[language=smtlib,basicstyle=\ttfamily]}
+% \newcommand{\lstfile}[1]{
+%   \lstinputlisting[language=dafny,%
+%     frame=lines,xleftmargin=8pt,xrightmargin=8pt,basicstyle=\ttfamily]{#1}
+% }

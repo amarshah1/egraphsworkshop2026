@@ -1,0 +1,49 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{E-graphs and congruence closure.}
+The e-graph data structure was introduced by Greg Nelson in his 1980 PhD
+thesis~\cite{nelson1980}, alongside the congruence-closure decision procedure
+developed jointly with Derek Oppen~\cite{nelsonoppen}. The e-graph was originally
+designed as the core data structure of the simplifier in the Stanford Pascal
+Verifier, where it represented equivalence classes of ground terms under the
+axioms of equality and uninterpreted functions. Modern SMT solvers and
+equality saturation engines inherit this design.
+
+\paragraph{E-matching in theorem provers.}
+The idea of \emph{matching modulo the equivalence stored in the e-graph} --- now
+called e-matching --- already appears in Nelson's thesis~\cite{nelson1980} . The
+technique was refined and used in the ESC line of program checkers, but its
+first detailed algorithmic exposition is the canonical Simplify paper of
+Detlefs, Nelson, and Saxe~\cite{simplify}. Our work targets the same problem ---
+finding all matches of a pattern modulo an e-graph --- but compares Simplify's
+recursive top-down matcher with a relational e-matching algorithm.
+
+\paragraph{Indexing for SMT e-matching.}
+de Moura and Bj{\o}rner introduced the \emph{e-matching code tree}, a
+compiled abstract matching machine that shares prefix work across many
+patterns simultaneously, and the \emph{inverted path index}, which makes
+e-matching incremental as the e-graph grows~\cite{ematchingz3}. A companion
+paper~\cite{ematchingfunprofit} surveys the practical lessons from deploying
+these techniques in Z3 and motivates index-based matching as the workhorse of
+modern SMT quantifier instantiation. Code trees are the closest prior work to
+our approach in spirit: both compile patterns to a more efficient
+representation than naive top-down traversal. The key difference is that code
+trees still drive matching from the pattern root, whereas relational
+e-matching is free to start from whichever relation is smallest.
+
+\paragraph{Equality saturation.}
+Equality saturation, introduced by Tate et al.~\cite{eqsat}, repurposes the
+e-graph as a compiler intermediate representation: rewrite rules are applied to
+saturation and an optimal program is then extracted, sidestepping the
+phase-ordering problem in traditional optimizers. The egg library~\cite{egg}
+made this approach widely practical by introducing deferred rebuilding of
+congruence invariants and e-class analyses. Relational
+e-matching~\cite{relationalematching} was developed in this lineage and
+implemented in egglog~\cite{egglog}, where the absence of backtracking makes
+maintaining the relational indices straightforward. Our contribution is to push
+these ideas back into the SMT setting, where backtracking is unavoidable and the
+index structures must be made backtrackable. Another difference is that egglog 
+employs a worst-case optimal join algorithm~\cite{wcoj}, whereas our current implementation uses a
+left-deep binary join. We leave the implementation of a worst-case optimal
+join for future work.

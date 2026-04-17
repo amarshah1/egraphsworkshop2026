@@ -1,0 +1,59 @@
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+We have presented an initial implementation of relational e-matching inside an
+SMT solver, identifying \emph{backtracking} as the central obstacle. Our
+synthetic benchmarks demonstrate that, even with a simple left-deep binary
+join, the relational approach can substantially outperform the conventional
+top-down matcher. Our results on Verus benchmarks suggest that it is not that 
+simple to translate this asymptotic advantage into a practical win on real workloads.
+Closing the remaining gap will require a combination of better data
+structures, better query planning, and a tighter integration with the rest of
+the solver. We sketch the most promising directions below.
+
+\paragraph{Better backtrackable index maps.}
+Our current implementation maintains
+indices as persistent maps, which is correct but leaves substantial performance
+on the table. Other datastructures are backtracked using trail-based undo logs, or
+amortized rebuilding schemes. Bringing these to bear on the
+relational indices would directly translate into reduced per-decision overhead.
+
+\paragraph{Understanding what real benchmarks need.}
+Synthetic benchmarks let us showcase the asymptotic advantage of relational
+e-matching, but Verus benchmarks paint a more nuanced picture. We do not yet
+have a precise characterization of which patterns and which workloads benefit,
+and which do not. A more careful study --- profiling pattern shapes, e-graph sizes,
+and the distribution of trigger applications across decision levels --- is needed.
+
+\paragraph{Multi-query optimization.}
+Today our implementation compiles each trigger into its own query plan and
+runs each plan independently. SMT solvers, however, evaluate hundreds or
+thousands of triggers against the same e-graph; many of these triggers share
+sub-patterns. The database community has long studied multi-query optimization,
+and Z3's code trees~\cite{ematchingz3} can be viewed as exactly this kind of
+sharing applied to top-down e-matching. We expect that a relational analogue
+--- sharing common sub-joins across triggers, or jointly planning batches of
+triggers --- would yield substantial savings on real workloads.
+
+\paragraph{Heuristics inside the query planner.}
+Relational e-matching opens the door to a much richer space of optimizations
+than top-down matching, because the planner now has visibility into what work
+will be done. Many SMT-specific heuristics fit naturally into this framework.
+For instance, \emph{relevancy filtering}~\cite{relevancy} --- restricting
+matches to terms the SAT engine currently considers active --- can be
+expressed as an additional selection in the join plan, and a planner that
+knows about relevancy can prune entire join paths early. Other heuristics, such as preferring patterns
+that have produced useful instantiations in the past, or biasing the join
+order toward terms involved in recent conflicts, similarly fit as cost-model
+inputs to the planner.
+
+\paragraph{Outlook.}
+Indexing techniques have repeatedly proven decisive in SMT
+performance: code trees and inverted path indices~\cite{ematchingz3} are widely
+credited with making large-scale e-matching tractable in Z3. Relational
+e-matching is, in a precise sense, the most general indexing technique
+available --- it subsumes pattern compilation as a special case and grants the
+planner full freedom to reorder and share work. With backtrackability solved
+and the right query-planning heuristics in place, we believe relational
+e-matching has a real path to becoming a practical and broadly useful
+component of modern SMT solvers.

@@ -1,0 +1,105 @@
+\documentclass[sigplan,screen,review,natbib=true]{acmart}
+
+%% The majority of ACM publications use class options [sigconf,review,anonymous].
+%% For PLDI-adjacent workshops (like the E-Graphs Workshop), sigplan is appropriate.
+%% Remove 'review' and 'anonymous' for the camera-ready version.
+
+%% Rights management information.
+\setcopyright{none}
+\acmConference[EGRAPHS '26]{E-Graphs Workshop}{June 2026}{TBD}
+\acmYear{2026}
+\copyrightyear{2026}
+
+%% Submission ID (remove for camera-ready).
+% \acmSubmissionID{123-A56-BU3}
+
+%% Remove ACM reference format for workshop submissions if desired.
+\settopmatter{printacmref=false}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+%% Packages
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{stys/smtlib}
+
+% Don't number subsubsections (acmart numbers them by default).
+\setcounter{secnumdepth}{2}
+
+\begin{document}
+
+\title{Relational E-matching in an SMT solver}
+% \subtitle{Optional Subtitle}
+
+%% Author information. With 'anonymous' class option, these are hidden.
+\author{Amar Shah}
+\affiliation{%
+  \institution{Carnegie Mellon University}
+  \city{Pittsburgh}
+  \country{USA}
+}
+\email{amarshah@andrew.cmu.edu}
+
+\author{Marijn Heule}
+\affiliation{%
+  \institution{Carnegie Mellon University}
+  \city{Pittsburgh}
+  \country{USA}
+}
+\email{marijn@andrew.cmu.edu}
+
+\author{Bryan Parno}
+\affiliation{%
+  \institution{Carnegie Mellon University}
+  \city{Pittsburgh}
+  \country{USA}
+}
+\email{bparno@andrew.cmu.edu}
+
+\author{Max Willsey}
+\affiliation{%
+  \institution{University of California, Berkeley}
+  \city{Berkeley}
+  \country{USA}
+}
+\email{mwillsey@berkeley.edu}
+
+
+\begin{abstract}
+E-matching is the problem of finding all matches of a pattern in an egraph.
+Relational e-matching, a recent approach inspired by the databases community,
+has found succcess in equality saturation engines such as egglog. However, until
+now, this technique has not been implemented in a Satisfiability Modulo Theories
+(SMT) solver. We identify the key difficulty of implementing relational
+e-matching in an SMT solver: \emph{backtracking}. We provide an initial
+implementation of relational e-matching in Sundance, an SMT solver currently in
+development. We describe our approach of maintaining backtrackable indices and
+our e-matching algorithm based on a left-deep binary join. We evaluate our
+implementation on a set of synthetic benchmarks and show an median speedup of
+$25 \times$ over a single top-down e-matching algorithm. However, when considering a set
+of benchmarks from the program verifier Verus, we see a median slowdown of
+$1.77 \times$. We conclude with a discussion of future work to close this gap
+and make relational e-matching a practical component of an SMT solver.
+\end{abstract}
+
+%% CCS concepts and keywords (optional for workshop).
+% \begin{CCSXML}
+% ...
+% \end{CCSXML}
+% \ccsdesc[500]{Software and its engineering~Compilers}
+
+\keywords{e-graphs, e-matching, datalog, SMT solvers}
+
+\maketitle
+
+\input{sections/1-intro.tex}
+\input{sections/2-background}
+\input{sections/3-approach}
+\input{sections/4-evaluation}
+\input{sections/5-related}
+\input{sections/6-conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{refs}
+
+\end{document}
