@@ -14,7 +14,7 @@ below.
 \paragraph{Better backtrackable index maps.}
 Our current implementation maintains
 indices as persistent maps, which is correct but leaves substantial performance
-on the table. Other datastructures are backtracked using trail-based undo logs, or
+on the table. Other data structures are backtracked using trail-based undo logs, or
 amortized rebuilding schemes. Bringing these to bear on the
 relational indices would directly translate into reduced per-decision overhead.
 
@@ -47,7 +47,7 @@ that have produced useful instantiations in the past, or biasing the join
 order toward terms involved in recent conflicts, similarly fit as cost-model
 inputs to the planner.
 
-% \paragraph{Outlook.}
+\paragraph{Outlook.}
 Indexing techniques have proven helpful in SMT
 performance: code trees and inverted path indices~\cite{ematchingz3} are widely
 credited with making large-scale e-matching tractable in Z3. Relational

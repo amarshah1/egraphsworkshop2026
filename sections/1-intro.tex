@@ -1,16 +1,16 @@
 \section{Introduction}
 \label{sec:intro}
 
-E-matching is a fundamental operation of an egraph, used in
-Satisfiability Modulo Theories (SMT) solvers for quantifier instantiation and in
-equality saturation engines for applying rewrite rules. Traditional e-matching
-algorithms are top-down, starting with the outermost function and recursively
-matching sub-patterns.
+E-matching is a fundamental operation of an e-graph, used in Satisfiability
+Modulo Theories (SMT) solvers for quantifier instantiation and in equality
+saturation engines for applying rewrite rules. Traditional e-matching algorithms
+are top-down, starting with the outermost function and recursively matching
+sub-patterns.
 
 However, recent work has proposed a new technique called relational
 e-matching~\cite{relationalematching}, where database query execution techniques
-are used to match syntactic patterns in an egraph. Relational e-matching has
-been highly effective in state-of-the-art equality saturation engines such as
+are used to match syntactic patterns in an e-graph. Relational e-matching has
+been  in state-of-the-art equality saturation engines such as
 egglog~\cite{egglog}, but until now it has not been implemented in an SMT solver.
 This is because existing relational e-matching implementations cannot be used
 out of the box in an SMT solver: they must support \emph{backtracking}.
@@ -18,7 +18,7 @@ out of the box in an SMT solver: they must support \emph{backtracking}.
 In this work, we present our initial implementation of a backtrackable,
 relational e-matching algorithm in Sundance~\cite{sundance}, an SMT solver currently in
 development. We describe maintaining backtrackable indices using a persistent 
-datastructure and implement an e-matching algorithm based on a
+data-structure and implement an e-matching algorithm based on a
 left-deep binary join.
 
 We evaluate our implementation on a set of synthetic benchmarks designed to test

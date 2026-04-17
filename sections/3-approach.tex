@@ -43,11 +43,11 @@ evaluation discussed in Section~\ref{sec:seminaive}.
 
 \paragraph{Backtracking.} At each SAT decision level, Sundance saves a snapshot
 of the two indices. Because \texttt{im::OrdMap} is a persistent data structure,
-cloning is $O(1)$ --- it shares structure with the live copy. On backtrack, the
+cloning is $O(1)$ --- it shares structure with the live copy. When backtracking, the
 solver restores the snapshot, discarding all index mutations that occurred under
 the popped decision level. New terms created by quantifier instantiations are
 then re-inserted into the restored indices, since those terms are
-permanent in the egraph even though the equalities that triggered them may have
+permanent in the e-graph even though the equalities that triggered them may have
 been undone.
 
 The cheap snapshots come at a cost: \texttt{im::OrdMap} is a persistent balanced

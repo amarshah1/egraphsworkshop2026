@@ -7,8 +7,10 @@ other areas of computer science. SMT solvers (such as Sundance) work by
 implementing a Boolean satisfiability (SAT) engine that searches for a
 satisfying assignment to the propositional skeleton of the input formula, and a
 theory solver that checks the validity of the theory-specific constraints, such
-as integer and real arithmetic, algebraic datatypes, and quantifiers. We refer
-you to \citet{smtchapter} for a more detailed introduction to SMT solving.
+as integer and real arithmetic, algebraic datatypes, and quantifiers. 
+
+% We refer
+% you to \citet{smtchapter} for a more detailed introduction to SMT solving.
 
 \subsection{Running example}
 
@@ -76,7 +78,7 @@ There are two key features that are important to highlight here. First, the disj
 forces the SAT engine to explore two case splits. After choosing one disjunct,
 instantiating quantifiers, and propagating consequences, the solver may discover
 a conflict and \emph{backtrack} to try the other disjunct. Thus, all of the
-solvers datastructures must be rolled back to the state they were in before the first
+solver's data structures must be rolled back to the state they were in before the first
 disjunct.
 
 % Any e-matching index
@@ -118,7 +120,7 @@ join. For \smt{(g (h x) x)}, the trigger is encoded as the conjunctive query
 \]
 %
 
-The a query scheduler can choose to start from either atom. Starting from the
+Then the query scheduler can choose to start from either atom. Starting from the
 \smt{g}-atom means the algorithm must scan all $n$ entries in the \smt{g}-table.
 Since there are fewer entries in the \smt{h}-table, a better choice is to start
 from the \smt{h}-atom: the algorithm looks up the $k$ entries in the

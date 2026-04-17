@@ -66,18 +66,18 @@
 
 
 \begin{abstract}
-E-matching is the problem of finding all matches of a pattern in an egraph.
+E-matching is the problem of finding all matches of a pattern in an e-graph.
 Relational e-matching, a recent approach inspired by the databases community,
 has found succcess in equality saturation engines such as egglog. However, until
 now, this technique has not been implemented in a Satisfiability Modulo Theories
 (SMT) solver. The key difficulty of implementing relational e-matching in an SMT
 solver is \emph{backtracking}, i.e., the ability to undo previous matching
-decisions. We provide an initial implementation of backtrackable, relational
+decisions. We provide an initial implementation of a backtrackable, relational
 e-matching algorithm in Sundance, an SMT solver currently in development. We
 describe our approach of maintaining backtrackable indices and our e-matching
 algorithm based on a left-deep binary join. We evaluate our implementation on a
-set of synthetic benchmarks and show an median speedup of $25 \times$ over a
-single top-down e-matching algorithm. However, when considering a set of
+set of synthetic benchmarks and show a median speedup of $25 \times$ over a
+top-down e-matching algorithm. However, when considering a set of
 benchmarks from the program verifier Verus, we see a median slowdown of $1.77
 \times$. We conclude with a discussion of future work to close this gap and make
 relational e-matching a practical component of an SMT solver.
